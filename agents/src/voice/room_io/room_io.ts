@@ -30,7 +30,10 @@ import {
 } from '../events.js';
 import type { AudioOutput, TextOutput } from '../io.js';
 import type { TextInputCallback } from '../remote_session.js';
-import { TranscriptionSynchronizer } from '../transcription/synchronizer.js';
+import {
+  TranscriptionSynchronizer,
+  defaultTextSyncOptions,
+} from '../transcription/synchronizer.js';
 import { ParticipantAudioInputStream } from './_input.js';
 import {
   ParalellTextOutput,
@@ -92,6 +95,11 @@ export interface RoomOutputOptions {
     Otherwise, transcription is emitted as quickly as available.
   */
   syncTranscription: boolean;
+  /** Set to true when the realtime model already streams transcripts synchronized with audio
+    output, bypassing the word tokenizer and writing directly to the output stream.
+    Matches the `nativeTranscriptSync` capability on `RealtimeCapabilities`.
+  */
+  nativeTranscriptSync?: boolean;
   /** The name of the audio track to publish. If not provided, default to "roomio_audio".
    */
   audioPublishOptions: TrackPublishOptions;
@@ -492,6 +500,9 @@ export class RoomIO {
         this.transcriptionSynchronizer = new TranscriptionSynchronizer(
           audioOutput,
           this.agentTranscriptOutput,
+          this.outputOptions.nativeTranscriptSync
+            ? { ...defaultTextSyncOptions, nativeTranscriptSync: true }
+            : undefined,
         );
       }
     }
