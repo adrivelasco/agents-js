@@ -426,10 +426,8 @@ export class AgentSession<
       }
 
       const resolvedOutputOptions = { ...outputOptions };
-      if (
-        this.agent?.llm instanceof RealtimeModel &&
-        this.agent.llm.capabilities.nativeTranscriptSync
-      ) {
+      const sessionLlm = this.agent?.llm ?? this.llm;
+      if (sessionLlm instanceof RealtimeModel && sessionLlm.capabilities.nativeTranscriptSync) {
         resolvedOutputOptions.nativeTranscriptSync ??= true;
       }
 
